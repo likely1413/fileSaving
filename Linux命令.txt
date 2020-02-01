@@ -1,0 +1,162 @@
+cd /dir  进入dir目录
+cd ../返回上一级文件夹
+
+ls ./ 查看当前文件夹的所有目录及文件
+ls -a 查看当前目录的所有文件,包括隐藏文件,以.开头的文件
+
+pwd   查看当前所在的目录	
+
+mkdir test 创建test目录
+mkdir -p test/test 创建多级目录
+
+rmdir 删除空目录
+
+rm -rf 删除文件或目录；rm -rf test.txt （-r表示递归,-f表示强制）
+
+cp 拷贝文件 cp old.txt /tmp/new.txt （如果拷贝目录需加 -r 参数 ）
+
+mv 重命名或移动文件目录；mv old.txt new.txt（mv old.txt /tmp/old.txt）
+
+touch 创建文件；touch test.txt 如果文件存在，则修改文件时间
+
+useradd u1  创建u1用户
+userdel u1 删除u1用户
+
+groupadd g1 创建组g1
+groupdel g1 删除组g1
+
+find /home -name "test.txt"(find /home/test.txt) 查看test.txt文件(未知文件可用*代替名称)
+find /home 查看根目录下的home目录
+
+cat /tmp/test.txt 查看test.txt文件内容
+
+vi test.txt 编辑器打开该文件，输入i进入编辑，按Esc键退出编辑，接着输入“：wq”退出，“：q!”表示不保存强制退出
+
+more test.txt 分页查看test.txt文件,如果篇幅很多，只能看到最后的篇幅；可以使用cat test.txt |more 分页显示text内容，|符号是管道，用于把|前的输出作为后面命令的输入。
+
+echo anything 打印anything
+
+echo anything >test.txt 把anything覆盖至test.txt（如果文件不存在则创建）
+echo anything >>test.txt 把anything追加至test.txt（如果文件不存在则创建）
+
+ls -l /test.txt 查看文件权限
+
+chown -R  u1:g1 /tmp/test.txt 更改test.txt权限；所属u1用户、g1组 ；
+
+chomd o+w /test.txt 更改其他用户对test.txt可写的属性（o代表other，u代表user）
+chmod u=rwx,g=rwx,o=rwx test.txt 更改用户、组、其他用户皆可读写执行；
+chmod 755 test.txt 分别给user、group、other授权文件权限（r=4 + w=2 + x=1）
+
+/etc/init.d/iptables stop 关闭防火墙
+chkconfig iptables off    开机关闭防火墙
+
+ifconfig 查看ip地址
+ifup eth0 启动eth0网卡
+
+修改ip地址：
+桥接模式：物理环境使用路由器
+NAT模式：单机或拨号上网
+主机模式:不想用虚拟机上网
+cd /etc/sysconfig/network-scripts/ 进入ip地址目录
+vi ifcfg-eth0 
+DEVICE=
+HWADDR=
+UUID=
+ONBOOT=yes
+MM_CONTROLLED=
+BOOTPROTO=static
+IPADDR=192.168.142.129
+NETMASK=255.255.255.0
+GATEWAY=192.168.142.2
+/etc/init.d/network restart 重启网卡服务
+
+vi /etc/resolv.conf 编辑DNS
+
+wget www.baidu.com 获取网址页面
+
+runlevel 查看当前在哪个级别
+
+init 5 切换视图模式（需安装）（0：单机或关机，1：单用户模式，2：多用户模式，3：完全多用户模式，5：视图界面，6：重启）
+
+重启按E进入选kernel模式，在编辑界面后加“1”按回车，然后按B重启进入单机模式，passwd root 按回车修改密码
+
+安装ntp时间服务器：
+yum install ntp ntpdate -y  （安装包）
+ntpdate pool.ntp.org（同步时间服务器）
+vi /etc/ntp.conf 配置ntp时间服务器
+:%d 清空
+复制代码
+driftfile /var/lib/ntp/drift
+restrict default kod nomodify notrap nopeer noquery
+restrict -6 default kod nomodify notrap nopeer noquery
+restrict 127.0.0.1
+restrict -6 ::1
+server 127.127.1.0    #local clock
+server pool.ntp.org   #local clock
+fudge  127.127.1.0 stratum 10
+includefile /etc/ntp/crypto/pw
+key /etc/ntp/keys
+
+/etc/init.d/ntpd stop/restart （停止/重启时间服务器）
+
+LANG=UTF-8 设置编码
+
+uname -a 查看系统版本
+
+yum install dhcp* -y 安装dhcp
+vi /etc/dhcp/dhcpd.conf 修改配置
+:%d 清空
+复制一下：
+ddns-update-style interim;
+ignore client-updates;
+allow booting;
+allow bootp;
+
+subnet 192.168.31.0 netmask 255.255.255.0 {
+
+# --- default gateway
+      option routers          192.168.31.1;
+      option subnet-mask      255.255.255.0;
+	  
+#     option nis-domain        "domain.org";
+#     option domain-name      "192.168.0.10";
+#     option domain-name-servers   192.168.0.10;
+
+      option time-offset       -18000;       #Eastern Standard Time
+#     option ntp-servers      192.168.1.1;
+#     option netbios-name-servers     192.168.1.1;
+# --- selects point-to-point node (default is hybrid). Don't change this unless
+# --- you understand Netbios very well
+#     option netbios-node-type 2;
+      range dynamic-bootp 192.168.31.100 192.168.31.200;
+      host ns {
+             hardware ethernet  00:1a:a0:2b:38:81;
+             fixed-address 192.168.0.130;}
+			 
+	  host ns1 {
+		     hardware ethernet  00:0c:29:2b:90:67;
+  		     fixed-address 192.168.0.131;}
+}
+/etc/init.d/dhcpd restart 重启
+
+
+
+yum install mysql-server mysql mysql-devel -y 安装MySQL包
+/etc/init.d/mysqld restart 重启初始化
+show databases; 显示数据库
+use 库名 切换数据库
+show tables; 显示库下所有表
+desc table_name; 查看该表内容
+mysqldump -uroot -p123456 test.db >/tmp/test.db.sql 备份导出
+mysql -uroot -p123456 test.bd </tmp/text.db.sql     还原
+mysqladmin -uroot -p123456 password newpassword 修改root密码
+
+修改密码：
+/etc/init.d/mysqld stop 
+mysqld_safe --skip-grant-tables & 跳过权限登录
+mysql（不需要密码了）
+use mysql;
+update user set password=password('123456') where user='root';
+exit;
+/etc/init.d/mysqld restart
+ps -ef |grep mysql 查看进程
